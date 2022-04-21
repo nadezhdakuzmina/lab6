@@ -238,7 +238,7 @@ class List {
          this.tail = null;
       }
    }
-/* 
+
    find(value) {
       if (!this.head){
          return null;
@@ -251,7 +251,7 @@ class List {
       current = current.next;
       } 
       return null;
-   } */
+   }
 
 }
 
@@ -298,10 +298,10 @@ function handleClickDel() {
 function handleClickList() {
   header.innerHTML = list.toString();
 }
-/* function handleClickFind() {
+function handleClickFind() {
   header.innerHTML = list.find(prompt('Find element'));
 }
-buttonFind.addEventListener('click', handleClickFind); */
+buttonFind.addEventListener('click', handleClickFind);
 buttonList.addEventListener('click', handleClickList);
 buttonDel.addEventListener('click', handleClickDel);
 buttonAdd.addEventListener('click', handleClickAdd);
