@@ -1,0 +1,315 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <title></title>
+  <link rel="stylesheet" href="./lab6.css" />
+  <div class="header">
+  <canvas class="canvas"></canvas>
+ </div>
+  <div class="main">
+    <button class="butAdd"> Добавлене в конец</button>
+    <button class="butAdd2"> Добавлене в начало</button>
+    <button class="butDel"> Удаление по индексу</button>
+    <button class="butList"> Список </button>
+    <button class="butFind"> Поиск </button>
+  </div>
+  <script>
+      particle_no = 25;
+ 
+ window.requestAnimFrame = (function() {
+   return window.requestAnimationFrame ||
+     window.webkitRequestAnimationFrame ||
+     window.mozRequestAnimationFrame ||
+     window.oRequestAnimationFrame ||
+     window.msRequestAnimationFrame ||
+     function(callback) {
+       window.setTimeout(callback, 1000 / 60);
+     };
+ })();
+ 
+ var canvas = document.getElementsByTagName("canvas")[0];
+ var ctx = canvas.getContext("2d");
+ 
+ var counter = 0;
+ var particles = [];
+ var w = 400,
+   h = 200;
+ canvas.width = w;
+ canvas.height = h;
+ 
+ function reset() {
+   ctx.fillStyle = "#fff";
+   ctx.fillRect(0, 0, w, h);
+ 
+   ctx.fillStyle = "#fff";
+   ctx.fillRect(25, 80, 350, 25);
+ }
+ 
+ function progressbar() {
+   this.widths = 0;
+   this.hue = 0;
+ 
+   this.draw = function() {
+     ctx.fillStyle = 'hsla(' + this.hue + ', 100%, 40%, 1)';
+     ctx.fillRect(25, 80, this.widths, 25);
+     var grad = ctx.createLinearGradient(0, 0, 0, 130);
+     grad.addColorStop(0, "transparent");
+     grad.addColorStop(1, "rgba(0,0,0,0.5)");
+     ctx.fillStyle = grad;
+     ctx.fillRect(25, 80, this.widths, 25);
+   }
+ }
+ 
+ function particle() {
+   this.x = 23 + bar.widths;
+   this.y = 82;
+ 
+   this.vx = 0.8 + Math.random() * 1;
+   this.v = Math.random() * 5;
+   this.g = 1 + Math.random() * 3;
+   this.down = false;
+ 
+   this.draw = function() {
+     ctx.fillStyle = 'hsla(' + (bar.hue + 0.3) + ', 100%, 40%, 1)';;
+     var size = Math.random() * 2;
+     ctx.fillRect(this.x, this.y, size, size);
+   }
+ }
+ 
+ bar = new progressbar();
+ 
+ function draw() {
+   reset();
+   counter++
+ 
+   bar.hue += 0.8;
+ 
+   bar.widths += 2;
+   if (bar.widths > 350) {
+     if (counter > 215) {
+       reset();
+       bar.hue = 0;
+       bar.widths = 0;
+       counter = 0;
+       particles = [];
+     } else {
+       bar.hue = 126;
+       bar.widths = 351;
+       bar.draw();
+     }
+   } else {
+     bar.draw();
+     for (var i = 0; i < particle_no; i += 10) {
+       particles.push(new particle());
+     }
+   }
+   update();
+ }
+ 
+ function update() {
+   for (var i = 0; i < particles.length; i++) {
+     var p = particles[i];
+     p.x -= p.vx;
+     if (p.down == true) {
+       p.g += 0.1;
+       p.y += p.g;
+     } else {
+       if (p.g < 0) {
+         p.down = true;
+         p.g += 0.1;
+         p.y += p.g;
+       } else {
+         p.y -= p.g;
+         p.g -= 0.1;
+       }
+     }
+     p.draw();
+   }
+ }
+ 
+ function animloop() {
+   draw();
+   requestAnimFrame(animloop);
+ }
+ 
+ class ListNode {
+   constructor(value, next = null, previous = null) {
+      this.value = value;
+      this.next = next;
+      this.previous = previous;
+   }
+   toString() {
+      return JSON.stringify(this.value);
+   }
+}
+   
+class List {
+   constructor() {
+      this.head = null;
+      this.tail = null;
+   }
+
+   toString() {
+      const array = [];
+      let currentElement = this.tail;
+
+      while (currentElement) {
+         array.push(currentElement.value);
+         currentElement = currentElement.previous;
+      }
+
+      return JSON.stringify(array);
+   }
+   
+  delete(index) {
+    let current = this.head;
+    for (var i = 0; i != index; i += 1){
+      current = current.next;
+    }
+
+    if (current === this.head) {
+      this.deleteHead();
+      return current;
+    }
+
+    if (current === this.tail) {
+      this.deleteTail();
+      return current;
+    }
+
+    const p = current.previous;
+    const n = current.next;
+    p.next = n;
+    n.previous = p;
+    return current;
+  }
+
+   prepend(value) {
+      let node = new ListNode(value, this.head);
+   
+      if (this.head) {
+         this.head.previous = node;
+      }
+   
+      this.head = node;
+   
+      if (!this.tail) {
+         this.tail = node;
+      }
+   }
+
+   append(value) {
+      let node = new ListNode(value, null, this.tail)
+
+      if (this.tail) {
+         this.tail.next = node;
+      }
+
+      this.tail = node;
+
+      if (!this.head) {
+         this.head = node;
+      }
+   }
+
+   deleteTail() {
+      if (!this.tail) {
+         return null;
+      }
+      if (this.tail.previous) {
+         this.tail = this.tail.previous;
+         this.tail.next = null;
+      } else {
+         this.head = null;
+         this.tail = null;
+      }
+   }
+
+   deleteHead() {
+      if (!this.head) {
+         return null;
+      }
+      if (this.head.next) {
+         this.head = this.head.next;
+         this.head.previous = null;
+      } else {
+         this.head = null;
+         this.tail = null;
+      }
+   }
+/* 
+   find(value) {
+      if (!this.head){
+         return null;
+      }
+      let current = this.head;
+      while (current) {
+         if (value !== undefined && current.value === value) {
+            return current;
+         }
+      current = current.next;
+      } 
+      return null;
+   } */
+
+}
+
+
+const list = new List();
+ 
+ let value = 0;
+ 
+ function View () {
+   let a = 0;
+   const createTimeout = () => setTimeout(() => {
+     draw();
+     a++;
+ 
+     if (a < 216) {
+       createTimeout();
+     }
+   }, 10);
+ 
+   createTimeout();
+ 
+ }
+ View();
+
+const buttonAdd = document.querySelector('.butAdd');
+const buttonAdd2 = document.querySelector('.butAdd2');
+const buttonDel = document.querySelector('.butDel');
+const buttonList = document.querySelector('.butList');
+const buttonFind = document.querySelector('.butFind');
+const header = document.querySelector('.header');
+
+function handleClickAdd() {
+  list.prepend(prompt('Add element'));
+  header.innerHTML = 'Added element';
+} 
+function handleClickAdd2() {
+  list.append(prompt('Add element'));
+  header.innerHTML = 'Added element';
+} 
+function handleClickDel() {
+  var result = list.delete(prompt('Add element'));
+  header.innerHTML = 'deleted element: ' + result;
+}
+function handleClickList() {
+  header.innerHTML = list.toString();
+}
+/* function handleClickFind() {
+  header.innerHTML = list.find(prompt('Find element'));
+}
+buttonFind.addEventListener('click', handleClickFind); */
+buttonList.addEventListener('click', handleClickList);
+buttonDel.addEventListener('click', handleClickDel);
+buttonAdd.addEventListener('click', handleClickAdd);
+buttonAdd2.addEventListener('click', handleClickAdd2);
+
+
+</script>
+</head>
+<body>
+</body>
+</html>
